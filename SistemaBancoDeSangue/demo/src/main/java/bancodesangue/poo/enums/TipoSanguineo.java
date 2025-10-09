@@ -1,4 +1,4 @@
-package bancodesangue.poo.entity;
+package bancodesangue.poo.enums;
 
 public enum TipoSanguineo {
     A_POS("A+"),

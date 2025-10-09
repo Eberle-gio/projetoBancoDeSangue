@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import bancodesangue.poo.enums.TipoSanguineo;
+
 @Entity
 @Table(name = "doacao_saida")
 public class DoacaoSaida {

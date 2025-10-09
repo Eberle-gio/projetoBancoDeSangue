@@ -11,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import bancodesangue.poo.enums.TipoMovimentacao;
+import bancodesangue.poo.enums.TipoSanguineo;
+
 @Entity
 @Table(name = "movimentacao")
 public class Movimentacao {

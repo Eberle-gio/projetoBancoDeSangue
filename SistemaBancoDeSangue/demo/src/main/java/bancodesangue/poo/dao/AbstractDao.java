@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-public abstract class AbstractDao<T> implements Dao<T> {
+public abstract class AbstractDao<T> implements DaoGenerico<T> {
 
     private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenciaPU");
 
@@ -19,7 +19,7 @@ public abstract class AbstractDao<T> implements Dao<T> {
     }
 
     @Override
-    public void inserir(T entidade) {
+    public T inserir(T entidade) {
         try {
             em.getTransaction().begin();
             em.persist(entidade);
@@ -28,19 +28,21 @@ public abstract class AbstractDao<T> implements Dao<T> {
             em.getTransaction().rollback();
             throw e;
         }
+        return entidade;
     }
 
     @Override
-    public void excluir(T entidade) {
+    public T excluir(T entidade) {
         try {
             em.getTransaction().begin();
-            entidade = em.merge(entidade); // garantir que está gerenciado
+            entidade = em.merge(entidade);
             em.remove(entidade);
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw e;
         }
+        return entidade;
     }
 
     @Override

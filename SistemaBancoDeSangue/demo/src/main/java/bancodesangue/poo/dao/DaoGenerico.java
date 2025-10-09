@@ -2,10 +2,10 @@ package bancodesangue.poo.dao;
 
 import java.util.List;
 
-public interface Dao<T> {
-    void inserir(T entidade);
+public interface DaoGenerico<T> {
+    T inserir(T entidade);
 
-    void excluir(T entidade);
+    T excluir(T entidade);
 
     T buscarPorId(Long id);
 

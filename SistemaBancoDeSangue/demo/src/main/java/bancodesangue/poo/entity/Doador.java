@@ -11,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import bancodesangue.poo.enums.Genero;
+import bancodesangue.poo.enums.TipoSanguineo;
+
 @Entity
 @Table(name = "doador")
 public class Doador {
