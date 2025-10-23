@@ -9,14 +9,14 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
-import bancodesangue.poo.enums.TipoMovimentacao;
 import bancodesangue.poo.enums.TipoSanguineo;
 
 @Entity
-@Table(name = "movimentacao")
-public class Movimentacao {
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Movimentacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +25,6 @@ public class Movimentacao {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoSanguineo tipoSanguineo;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoMovimentacao tipoMovimentacao;
 
     @Column(nullable = false)
     private LocalDate data;
@@ -47,14 +43,6 @@ public class Movimentacao {
 
     public void setTipoSanguineo(TipoSanguineo tipoSanguineo) {
         this.tipoSanguineo = tipoSanguineo;
-    }
-
-    public TipoMovimentacao getTipoMovimentacao() {
-        return tipoMovimentacao;
-    }
-
-    public void setTipoMovimentacao(TipoMovimentacao tipoMovimentacao) {
-        this.tipoMovimentacao = tipoMovimentacao;
     }
 
     public LocalDate getData() {
