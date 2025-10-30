@@ -1,5 +1,7 @@
 package bancodesangue.poo.service;
 
+import java.util.List;
+
 import bancodesangue.poo.dao.DaoDoador;
 import bancodesangue.poo.entity.Doador;
 
@@ -21,11 +23,26 @@ public class DoadorService {
             throw new IllegalArgumentException("Idade fora da faixa permitida.");
         if (doador.getPeso() < 50)
             throw new IllegalArgumentException("Peso mínimo para doar é 50 kg.");
-
-        // Verificar CPF único
         for (Doador d : doadorDao.buscarTodos()) {
             if (d.getCpf().equals(doador.getCpf()))
                 throw new IllegalArgumentException("CPF já cadastrado.");
         }
+    }
+
+    public Doador buscarPorNome(String nome) {
+        return doadorDao.buscarPorNome(nome);
+    }
+
+    public Doador atualizarDoador(Doador doador) {
+        validarDoador(doador);
+        return doadorDao.atualizar(doador);
+    }
+
+    public List<Doador> buscarTodo() {
+        return doadorDao.buscarTodos();
+    }
+
+    public Doador excluirDoador(Doador doador) {
+        return doadorDao.excluir(doador);
     }
 }
