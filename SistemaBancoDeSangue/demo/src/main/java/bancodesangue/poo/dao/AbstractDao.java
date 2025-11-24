@@ -13,8 +13,9 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
     protected EntityManager em;
     private Class<T> entityClass;
 
-    public AbstractDao(Class<T> entityClass) {
-        this.em = emf.createEntityManager();
+    // Mudança: Recebe o EntityManager via construtor (Injeção de Dependência)
+    public AbstractDao(EntityManager em, Class<T> entityClass) {
+        this.em = em;
         this.entityClass = entityClass;
     }
 
@@ -24,11 +25,28 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             em.getTransaction().begin();
             em.persist(entidade);
             em.getTransaction().commit();
+            return entidade;
         } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new RuntimeException("Erro ao inserir registro: " + e.getMessage(), e);
         }
-        return entidade;
+    }
+
+    @Override
+    public T atualizar(T entidade) {
+        try {
+            em.getTransaction().begin();
+            entidade = em.merge(entidade);
+            em.getTransaction().commit();
+            return entidade;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new RuntimeException("Erro ao atualizar registro: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -37,19 +55,6 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             em.getTransaction().begin();
             entidade = em.merge(entidade);
             em.remove(entidade);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-        return entidade;
-    }
-
-    @Override
-    public T atualizar(T entidade) {
-        try {
-            em.getTransaction().begin();
-            entidade = em.merge(entidade);
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();

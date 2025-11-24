@@ -11,11 +11,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 
 import bancodesangue.poo.enums.TipoSanguineo;
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "movimentacao")
+// A MÁGICA ACONTECE AQUI: JOINED cria uma estrutura normalizada
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Movimentacao {
 
     @Id
@@ -23,12 +26,13 @@ public abstract class Movimentacao {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     private TipoSanguineo tipoSanguineo;
 
     @Column(nullable = false)
     private LocalDate data;
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -52,5 +56,4 @@ public abstract class Movimentacao {
     public void setData(LocalDate data) {
         this.data = data;
     }
-
 }
