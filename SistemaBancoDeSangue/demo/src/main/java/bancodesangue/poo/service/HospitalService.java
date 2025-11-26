@@ -2,13 +2,14 @@ package bancodesangue.poo.service;
 
 import bancodesangue.poo.dao.DaoHospital;
 import bancodesangue.poo.entity.Hospital;
+import bancodesangue.poo.util.ValidadorCNPJ;
 
 public class HospitalService {
 
     private DaoHospital hospitalDao;
 
-    public HospitalService() {
-        this.hospitalDao = new DaoHospital();
+    public HospitalService(DaoHospital hospitalDao) {
+        this.hospitalDao = hospitalDao;
     }
 
     public Hospital cadastrarHospital(Hospital hospital) {
@@ -18,29 +19,16 @@ public class HospitalService {
 
     public void verificarAtributos(Hospital hospital) {
         if (hospital.getNome() == null || hospital.getNome().isEmpty()) {
-            throw new IllegalArgumentException("Nome do hospital não pode ser vazio.");
+            throw new IllegalArgumentException("Nome é obrigatório.");
         }
-        if (hospital.getCnpj() == null || hospital.getCnpj() <= 13) {
+
+        if (!ValidadorCNPJ.validarCnpj(hospital.getCnpj())) {
             throw new IllegalArgumentException("CNPJ inválido.");
         }
-        if (hospital.getEndereco() == null) {
-            throw new IllegalArgumentException("Endereço do hospital não pode ser vazio.");
+
+        Hospital existente = hospitalDao.buscarPorCnpj(hospital.getCnpj());
+        if (existente != null && (hospital.getId() == null || !existente.getId().equals(hospital.getId()))) {
+            throw new IllegalArgumentException("CNPJ já cadastrado.");
         }
-        if (hospital.getTelefone() == null) {
-            throw new IllegalArgumentException("Telefone do hospital não pode ser vazio.");
-        }
-    }
-
-    public Hospital buscarPorNome(String nome) {
-        return hospitalDao.buscarPorNome(nome);
-    }
-
-    public Hospital atualizar(Hospital hospital) {
-        verificarAtributos(hospital);
-        return hospitalDao.atualizar(hospital);
-    }
-
-    public void excluir(Hospital hospital) {
-        hospitalDao.excluir(hospital);
     }
 }

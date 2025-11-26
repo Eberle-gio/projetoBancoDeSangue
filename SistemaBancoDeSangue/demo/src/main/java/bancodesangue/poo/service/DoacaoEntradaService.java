@@ -13,56 +13,50 @@ public class DoacaoEntradaService {
 
     private DaoDoacaoEntrada doacaoDao;
     private DaoDoador doadorDao;
-    private final int quantidadeBolsa = 1;
 
-    public DoacaoEntradaService() {
-        this.doacaoDao = new DaoDoacaoEntrada();
-        this.doadorDao = new DaoDoador();
+    public DoacaoEntradaService(DaoDoacaoEntrada doacaoDao, DaoDoador doadorDao) {
+        this.doacaoDao = doacaoDao;
+        this.doadorDao = doadorDao;
     }
 
     public DoacaoEntrada registrarDoacao(DoacaoEntrada doacao) {
-        validarDoacao(doacao);
+        // Data automática
+        doacao.setData(LocalDate.now());
 
-        Doador doador = doacao.getDoador();
-        doador.setDataUltimaDoacao(doacao.getDataEntrada());
+        if (doacao.getDoador() == null || doacao.getDoador().getId() == null) {
+            throw new IllegalArgumentException("Doador é obrigatório.");
+        }
+
+        // Busca doador atualizado para garantir consistência
+        Doador doador = doadorDao.buscarPorId(doacao.getDoador().getId());
+        if (doador == null) {
+            throw new IllegalArgumentException("Doador não encontrado.");
+        }
+
+        doacao.setTipoSanguineo(doador.getTipoSanguineo());
+
+        // Regra de Negócio: Intervalo entre doações
+        validarIntervalo(doador);
+
+        // Salva Doação
+        DoacaoEntrada novaDoacao = doacaoDao.inserir(doacao);
+
+        // Atualiza Doador
+        doador.setDataUltimaDoacao(LocalDate.now());
         doadorDao.atualizar(doador);
-        return doacaoDao.inserir(doacao);
+
+        return novaDoacao;
     }
 
-    private void validarDoacao(DoacaoEntrada doacao) {
-        Doador doador = doacao.getDoador();
-
-        if (doador == null) {
-            throw new IllegalArgumentException("Doador não informado.");
-        }
-
+    private void validarIntervalo(Doador doador) {
         if (doador.getDataUltimaDoacao() != null) {
-            long diasUltimaDoacao = ChronoUnit.DAYS.between(doador.getDataUltimaDoacao(), doacao.getDataEntrada());
+            long dias = ChronoUnit.DAYS.between(doador.getDataUltimaDoacao(), LocalDate.now());
 
-            if (doador.getGenero() == Genero.FEMININO && diasUltimaDoacao < 90) {
-                throw new IllegalArgumentException("Doadora não pode doar sangue antes de 90 dias da última doação.");
-            }
-
-            if (doador.getGenero() == Genero.MASCULINO && diasUltimaDoacao < 60) {
-                throw new IllegalArgumentException("Doador não pode doar sangue antes de 60 dias da última doação.");
+            if (doador.getGenero() == Genero.MASCULINO && dias < 60) {
+                throw new IllegalArgumentException("Homens devem aguardar 60 dias. Faltam: " + (60 - dias));
+            } else if (doador.getGenero() == Genero.FEMININO && dias < 90) {
+                throw new IllegalArgumentException("Mulheres devem aguardar 90 dias. Faltam: " + (90 - dias));
             }
         }
-
-        if (doador.getPeso() < 50) {
-            throw new IllegalArgumentException("Doador não pode doar sangue com peso inferior a 50kg.");
-        }
-
-        if (doador.getIdade() < 16 || doador.getIdade() > 69) {
-            throw new IllegalArgumentException("Doador deve ter entre 18 e 69 anos para doar sangue.");
-        }
-
-        if (doador.getTipoSanguineo() == null) {
-            throw new IllegalArgumentException("Tipo sanguíneo do doador não informado.");
-        }
-
-        if (doacao.getDataEntrada() == null) {
-            doacao.setDataEntrada(LocalDate.now());
-        }
-
     }
 }
