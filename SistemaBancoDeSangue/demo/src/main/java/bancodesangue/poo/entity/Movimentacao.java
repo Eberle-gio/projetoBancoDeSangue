@@ -17,7 +17,6 @@ import bancodesangue.poo.enums.TipoSanguineo;
 
 @Entity
 @Table(name = "movimentacao")
-// A MÁGICA ACONTECE AQUI: JOINED cria uma estrutura normalizada
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Movimentacao {
 
@@ -32,7 +31,6 @@ public abstract class Movimentacao {
     @Column(nullable = false)
     private LocalDate data;
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

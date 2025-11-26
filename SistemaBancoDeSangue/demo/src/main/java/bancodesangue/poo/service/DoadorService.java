@@ -30,7 +30,7 @@ public class DoadorService {
             throw new IllegalArgumentException("CPF inválido.");
         }
 
-        // Validação de duplicidade otimizada
+        // Validação de duplicidade
         Doador existente = doadorDao.buscarPorCpf(doador.getCpf());
         if (existente != null && (doador.getId() == null || !existente.getId().equals(doador.getId()))) {
             throw new IllegalArgumentException("CPF já cadastrado.");

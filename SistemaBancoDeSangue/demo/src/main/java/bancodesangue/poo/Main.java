@@ -9,22 +9,18 @@ import javax.persistence.Persistence;
 import bancodesangue.poo.dao.DaoDescarte;
 import bancodesangue.poo.dao.DaoDoacaoEntrada;
 import bancodesangue.poo.dao.DaoDoacaoSaida;
-// Imports dos DAOs
 import bancodesangue.poo.dao.DaoDoador;
 import bancodesangue.poo.dao.DaoHospital;
 import bancodesangue.poo.entity.DoacaoDescarte;
 import bancodesangue.poo.entity.DoacaoEntrada;
 import bancodesangue.poo.entity.DoacaoSaida;
-// Imports das Entidades
 import bancodesangue.poo.entity.Doador;
 import bancodesangue.poo.entity.Hospital;
 import bancodesangue.poo.enums.Genero;
-// Imports dos Enums
 import bancodesangue.poo.enums.TipoSanguineo;
 import bancodesangue.poo.service.DescarteService;
 import bancodesangue.poo.service.DoacaoEntradaService;
 import bancodesangue.poo.service.DoacaoSaidaService;
-// Imports dos Services
 import bancodesangue.poo.service.DoadorService;
 import bancodesangue.poo.service.HospitalService;
 
@@ -32,40 +28,34 @@ public class Main {
 
     private static Scanner scanner = new Scanner(System.in);
 
-    // Services estáticos para serem usados nos menus
     private static DoadorService doadorService;
     private static HospitalService hospitalService;
     private static DoacaoEntradaService entradaService;
     private static DoacaoSaidaService saidaService;
     private static DescarteService descarteService;
 
-    // DAOs auxiliares para buscas rápidas no menu (ex: buscar doador pelo ID)
     private static DaoDoador daoDoador;
     private static DaoHospital daoHospital;
 
     public static void main(String[] args) {
-        // 1. CONFIGURAÇÃO INICIAL (A "Fábrica" de conexões)
+
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenciaPU");
         EntityManager em = emf.createEntityManager();
 
         try {
-            // 2. INJEÇÃO DE DEPENDÊNCIA (Criamos tudo aqui uma única vez)
-
-            // Instancia os DAOs com a conexão (em)
             daoDoador = new DaoDoador(em);
             daoHospital = new DaoHospital(em);
             DaoDoacaoEntrada daoEntrada = new DaoDoacaoEntrada(em);
             DaoDoacaoSaida daoSaida = new DaoDoacaoSaida(em);
             DaoDescarte daoDescarte = new DaoDescarte(em);
 
-            // Instancia os Services injetando os DAOs neles
             doadorService = new DoadorService(daoDoador);
             hospitalService = new HospitalService(daoHospital);
             entradaService = new DoacaoEntradaService(daoEntrada, daoDoador);
             saidaService = new DoacaoSaidaService(daoSaida, daoEntrada, daoHospital);
             descarteService = new DescarteService(daoDescarte);
 
-            // 3. MENU PRINCIPAL
+            // MENU PRINCIPAL
             boolean rodando = true;
             while (rodando) {
                 System.out.println("\n=== SISTEMA DE BANCO DE SANGUE ===");
@@ -94,9 +84,8 @@ public class Main {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Falha ao processar.");
         } finally {
-            // Fecha a conexão ao sair
             if (em != null)
                 em.close();
             if (emf != null)
@@ -105,7 +94,7 @@ public class Main {
         }
     }
 
-    // --- SUB-MENU: HEMONÚCLEO ---
+    // MENU HEMONÚCLEO
     private static void menuHemonucleo() {
         boolean voltar = false;
         while (!voltar) {
@@ -145,7 +134,7 @@ public class Main {
         }
     }
 
-    // --- SUB-MENU: HOSPITAL ---
+    // MENU HOSPITAL
     private static void menuHospital() {
         boolean voltar = false;
         while (!voltar) {
@@ -177,7 +166,7 @@ public class Main {
         }
     }
 
-    // --- MÉTODOS DE AÇÃO (HEMONÚCLEO) ---
+    // (HEMONÚCLEO)
 
     private static void cadastrarDoador() {
         System.out.println("\n--- Cadastro de Doador ---");
@@ -211,8 +200,6 @@ public class Main {
         System.out.print("ID do Doador: ");
         Long idDoador = lerLong();
 
-        // Buscamos o doador apenas para associar ao objeto (o Service valida tudo
-        // depois)
         Doador doador = daoDoador.buscarPorId(idDoador);
         if (doador == null) {
             System.out.println("Doador não encontrado!");
@@ -222,7 +209,6 @@ public class Main {
 
         DoacaoEntrada entrada = new DoacaoEntrada();
         entrada.setDoador(doador);
-        // Data e Tipo Sanguíneo são preenchidos automaticamente no Service
 
         entradaService.registrarDoacao(entrada);
         System.out.println("Doação registrada com sucesso! Estoque atualizado.");
@@ -254,7 +240,7 @@ public class Main {
         }
     }
 
-    // --- MÉTODOS DE AÇÃO (HOSPITAL) ---
+    // (HOSPITAL)
 
     private static void cadastrarHospital() {
         System.out.println("\n--- Cadastro de Hospital ---");
@@ -264,7 +250,7 @@ public class Main {
         h.setNome(scanner.nextLine());
 
         System.out.print("CNPJ (somente números): ");
-        h.setCnpj(lerLong()); // Ajuste: seu metodo setCnpj recebe Long, confira na sua Entity
+        h.setCnpj(lerLong());
 
         System.out.print("Endereço: ");
         h.setEndereco(scanner.nextLine());
@@ -301,8 +287,6 @@ public class Main {
         System.out.println("Solicitação aprovada! Estoque atualizado.");
     }
 
-    // --- MÉTODOS AUXILIARES DE LEITURA ---
-
     private static int lerInteiro() {
         try {
             return Integer.parseInt(scanner.nextLine());
@@ -336,7 +320,7 @@ public class Main {
             return Genero.MASCULINO;
         if (op == 2)
             return Genero.FEMININO;
-        System.out.println("Opção inválida, definindo padrão MASCULINO.");
+        System.out.println("Opção inválida");
         return Genero.MASCULINO;
     }
 

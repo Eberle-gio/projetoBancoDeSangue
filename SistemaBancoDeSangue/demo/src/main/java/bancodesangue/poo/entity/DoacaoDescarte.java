@@ -11,12 +11,11 @@ import javax.persistence.Table;
 public class DoacaoDescarte extends Movimentacao {
 
     @Column(nullable = false)
-    private String motivoDescarte; // Ex: "Validade Vencida", "Bolsa Rompida"
+    private String motivoDescarte;
 
     @Column(nullable = false)
-    private String responsavelDescarte; // Nome do funcionário que descartou
+    private String responsavelDescarte;
 
-    // Getters e Setters
     public String getMotivoDescarte() {
         return motivoDescarte;
     }

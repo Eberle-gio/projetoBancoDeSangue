@@ -14,7 +14,6 @@ public class DaoDoador extends AbstractDao<Doador> {
 
     public Doador buscarPorCpf(String cpf) {
         try {
-            // Query passada diretamente no método
             TypedQuery<Doador> query = em.createQuery("SELECT d FROM Doador d WHERE d.cpf = :cpf", Doador.class);
             query.setParameter("cpf", cpf);
 

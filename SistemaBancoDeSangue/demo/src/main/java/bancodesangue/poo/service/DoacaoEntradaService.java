@@ -26,8 +26,7 @@ public class DoacaoEntradaService {
         if (doacao.getDoador() == null || doacao.getDoador().getId() == null) {
             throw new IllegalArgumentException("Doador é obrigatório.");
         }
-
-        // Busca doador atualizado para garantir consistência
+        // Busca de Doador
         Doador doador = doadorDao.buscarPorId(doacao.getDoador().getId());
         if (doador == null) {
             throw new IllegalArgumentException("Doador não encontrado.");
@@ -35,13 +34,11 @@ public class DoacaoEntradaService {
 
         doacao.setTipoSanguineo(doador.getTipoSanguineo());
 
-        // Regra de Negócio: Intervalo entre doações
+        // Intervalo entre doações
         validarIntervalo(doador);
-
-        // Salva Doação
         DoacaoEntrada novaDoacao = doacaoDao.inserir(doacao);
 
-        // Atualiza Doador
+        // Atualiza a ultima doação do doador
         doador.setDataUltimaDoacao(LocalDate.now());
         doadorDao.atualizar(doador);
 

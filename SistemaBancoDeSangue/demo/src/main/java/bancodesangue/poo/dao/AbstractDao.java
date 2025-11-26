@@ -13,7 +13,6 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
     protected EntityManager em;
     private Class<T> entityClass;
 
-    // Mudança: Recebe o EntityManager via construtor (Injeção de Dependência)
     public AbstractDao(EntityManager em, Class<T> entityClass) {
         this.em = em;
         this.entityClass = entityClass;
@@ -57,7 +56,9 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             em.remove(entidade);
             em.getTransaction().commit();
         } catch (Exception e) {
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             throw e;
         }
         return entidade;

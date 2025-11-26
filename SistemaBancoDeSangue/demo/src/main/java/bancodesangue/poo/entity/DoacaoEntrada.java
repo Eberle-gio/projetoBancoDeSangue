@@ -9,14 +9,13 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "doacao_entrada")
-@PrimaryKeyJoinColumn(name = "id") // Opcional, mas bom para explicitar que o ID é FK da Movimentacao
+@PrimaryKeyJoinColumn(name = "id")
 public class DoacaoEntrada extends Movimentacao {
 
     @ManyToOne
     @JoinColumn(name = "doador_id", nullable = false)
     private Doador doador;
 
-    // Adicionei para facilitar o cálculo de estoque (soma de quantidades)
     @Column(nullable = false)
     private int quantidade = 1;
 
