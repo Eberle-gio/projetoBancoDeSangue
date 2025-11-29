@@ -1,5 +1,7 @@
 package bancodesangue.poo.dao;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 
 import bancodesangue.poo.entity.DoacaoSaida;
@@ -19,5 +21,18 @@ public class DaoDoacaoSaida extends AbstractDao<DoacaoSaida> {
                 .getSingleResult();
 
         return total == null ? 0L : total;
+    }
+
+    public List<DoacaoSaida> buscarSaidasPorData(boolean ascendente) {
+        String ordem = ascendente ? "ASC" : "DESC";
+        return em.createQuery("SELECT s FROM DoacaoSaida s ORDER BY s.data " + ordem, DoacaoSaida.class)
+                .getResultList();
+    }
+
+    public List<Object[]> buscarRankingHospitais() {
+        return em.createQuery(
+                "SELECT s.hospital, SUM(s.quantidadeBolsas) FROM DoacaoSaida s GROUP BY s.hospital ORDER BY SUM(s.quantidadeBolsas) DESC",
+                Object[].class)
+                .getResultList();
     }
 }

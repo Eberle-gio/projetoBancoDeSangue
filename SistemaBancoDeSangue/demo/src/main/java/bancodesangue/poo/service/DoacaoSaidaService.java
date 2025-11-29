@@ -1,6 +1,7 @@
 package bancodesangue.poo.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import bancodesangue.poo.dao.DaoDoacaoEntrada;
 import bancodesangue.poo.dao.DaoDoacaoSaida;
@@ -14,6 +15,7 @@ public class DoacaoSaidaService {
     private DaoDoacaoEntrada entradaDao;
     private DaoHospital hospitalDao;
 
+    // Injeção de Dependência
     public DoacaoSaidaService(DaoDoacaoSaida saidaDao, DaoDoacaoEntrada entradaDao, DaoHospital hospitalDao) {
         this.saidaDao = saidaDao;
         this.entradaDao = entradaDao;
@@ -21,30 +23,46 @@ public class DoacaoSaidaService {
     }
 
     public DoacaoSaida registrarSaida(DoacaoSaida saida) {
+        // Data automática
         saida.setData(LocalDate.now());
 
+        // Validações básicas
         if (saida.getQuantidadeBolsas() <= 0) {
-            throw new IllegalArgumentException("Quantidade deve ser positiva.");
+            throw new IllegalArgumentException("Quantidade deve ser maior que zero.");
         }
-        if (saida.getHospital() == null || hospitalDao.buscarPorId(saida.getHospital().getId()) == null) {
-            throw new IllegalArgumentException("Hospital inválido ou não encontrado.");
+        if (saida.getHospital() == null || saida.getHospital().getId() == null) {
+            throw new IllegalArgumentException("Hospital não informado.");
+        }
+        if (hospitalDao.buscarPorId(saida.getHospital().getId()) == null) {
+            throw new IllegalArgumentException("Hospital não encontrado.");
         }
 
-        // Validação de Estoque
-        verificarEstoque(saida.getTipoSanguineo(), saida.getQuantidadeBolsas());
+        // 4. VERIFICAÇÃO DE ESTOQUE (Crucial!)
+        validarEstoque(saida.getTipoSanguineo(), saida.getQuantidadeBolsas());
 
         return saidaDao.inserir(saida);
     }
 
-    private void verificarEstoque(TipoSanguineo tipo, int qtdSolicitada) {
-        Long totalEntradas = entradaDao.somarEntradasPorTipo(tipo);
-        Long totalSaidas = saidaDao.somarSaidasPorTipo(tipo);
+    private void validarEstoque(TipoSanguineo tipo, int quantidadeSolicitada) {
+        // Busca quanto entrou e quanto saiu no banco
+        Long totalEntrada = entradaDao.somarEntradasPorTipo(tipo);
+        Long totalSaida = saidaDao.somarSaidasPorTipo(tipo);
 
-        long saldoAtual = totalEntradas - totalSaidas;
+        long estoqueAtual = totalEntrada - totalSaida;
 
-        if (qtdSolicitada > saldoAtual) {
+        if (quantidadeSolicitada > estoqueAtual) {
             throw new IllegalArgumentException("Estoque insuficiente para " + tipo +
-                    ". Disponível: " + saldoAtual);
+                    ". Disponível: " + estoqueAtual + ", Solicitado: " + quantidadeSolicitada);
         }
+    }
+
+    // --- MÉTODOS PARA RELATÓRIOS ---
+
+    public List<DoacaoSaida> buscarPorData(boolean asc) {
+        return saidaDao.buscarSaidasPorData(asc);
+    }
+
+    public List<Object[]> gerarRankingHospitais() {
+        return saidaDao.buscarRankingHospitais();
     }
 }
