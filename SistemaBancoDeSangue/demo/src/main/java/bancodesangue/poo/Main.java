@@ -343,10 +343,10 @@ public class Main {
     private static void registrarSaida() {
         System.out.println("\n>>> SOLICITAR BOLSAS (SAÍDA) <<<");
 
-        System.out.print("Digite o ID do Hospital solicitante: ");
-        Long idHospital = lerLong();
+        System.out.print("Digite o Nome do Hospital solicitante: ");
+        String nomeHospital = scanner.nextLine();
 
-        Hospital hospital = daoHospital.buscarPorId(idHospital);
+        Hospital hospital = daoHospital.buscarPorNome(nomeHospital);
         if (hospital == null) {
             System.out.println("AVISO: Hospital não encontrado. Cadastre-o primeiro.");
             return;
