@@ -37,7 +37,7 @@ public class DoacaoSaidaService {
             throw new IllegalArgumentException("Hospital não encontrado.");
         }
 
-        // 4. VERIFICAÇÃO DE ESTOQUE (Crucial!)
+        // 4. VERIFICAÇÃO DE ESTOQUE
         validarEstoque(saida.getTipoSanguineo(), saida.getQuantidadeBolsas());
 
         return saidaDao.inserir(saida);
@@ -56,7 +56,7 @@ public class DoacaoSaidaService {
         }
     }
 
-    // --- MÉTODOS PARA RELATÓRIOS ---
+    // Métodos para a geração de relatórios
 
     public List<DoacaoSaida> buscarPorData(boolean asc) {
         return saidaDao.buscarSaidasPorData(asc);
@@ -64,5 +64,12 @@ public class DoacaoSaidaService {
 
     public List<Object[]> gerarRankingHospitais() {
         return saidaDao.buscarRankingHospitais();
+    }
+
+    public long consultarEstoqueAtual(TipoSanguineo tipo) {
+        Long totalEntrada = entradaDao.somarEntradasPorTipo(tipo);
+        Long totalSaida = saidaDao.somarSaidasPorTipo(tipo);
+
+        return totalEntrada - totalSaida;
     }
 }

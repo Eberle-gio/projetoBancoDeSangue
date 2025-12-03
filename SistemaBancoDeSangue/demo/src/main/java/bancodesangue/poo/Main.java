@@ -98,7 +98,6 @@ public class Main {
 
         } catch (Exception e) {
             System.out.println("Falha no Sistema: " + e.getMessage());
-            e.printStackTrace();
         } finally {
 
             if (em != null)
@@ -114,9 +113,10 @@ public class Main {
         while (!voltar) {
             System.out.println("\n--- PAINEL DO HEMONÚCLEO ---");
             System.out.println("1. Cadastrar Novo Doador");
-            System.out.println("2. Registrar Doação");
+            System.out.println("2. Registrar Entrada (Doação)");
             System.out.println("3. Registrar Descarte de Bolsa");
-            System.out.println("4. Listar Todos os Doadores");
+            System.out.println("4. Visualizar Estoque Atual");
+            System.out.println("5. Listar Todos os Doadores");
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha: ");
 
@@ -134,6 +134,9 @@ public class Main {
                         registrarDescarte();
                         break;
                     case 4:
+                        visualizarEstoque();
+                        break;
+                    case 5:
                         listarTodosDoadores();
                         break;
                     case 0:
@@ -256,7 +259,7 @@ public class Main {
 
         Doador doador = daoDoador.buscarPorNome(nomeDoador);
         if (doador == null) {
-            System.out.println("AVISO: Doador não encontrado com este ID.");
+            System.out.println("AVISO: Doador não encontrado com este nome.");
             return;
         }
         System.out.println("Doador Identificado: " + doador.getNome() + " [" + doador.getTipoSanguineo() + "]");
@@ -299,6 +302,23 @@ public class Main {
                         " | Tipo: " + d.getTipoSanguineo() + " | Última Doação: " + ultDoacao);
             }
         }
+    }
+
+    private static void visualizarEstoque() {
+        System.out.println("\n=== ESTOQUE ATUAL DE BOLSAS ===");
+        System.out.println("---------------------------------");
+        System.out.printf("%-10s | %s%n", "TIPO", "QUANTIDADE");
+        System.out.println("---------------------------------");
+
+        long totalGeral = 0;
+
+        for (TipoSanguineo tipo : TipoSanguineo.values()) {
+            long saldo = saidaService.consultarEstoqueAtual(tipo);
+            totalGeral += saldo;
+            System.out.printf("%-10s | %d bolsas%n", tipo, saldo);
+        }
+        System.out.println("---------------------------------");
+        System.out.println("TOTAL GERAL: " + totalGeral + " bolsas no estoque.");
     }
 
     private static void cadastrarHospital() {
@@ -376,7 +396,7 @@ public class Main {
                 tipo = "[ENTRADA]";
                 detalhe = "Doador: " + ((DoacaoEntrada) m).getDoador().getNome();
             } else if (m instanceof DoacaoSaida) {
-                tipo = "[SAÍDA]  "; // Espaços para alinhar visualmente
+                tipo = "[SAÍDA]  ";
                 detalhe = "Hospital: " + ((DoacaoSaida) m).getHospital().getNome() +
                         " (Qtd: " + ((DoacaoSaida) m).getQuantidadeBolsas() + ")";
             } else if (m instanceof DoacaoDescarte) {

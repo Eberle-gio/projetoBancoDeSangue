@@ -39,13 +39,13 @@ public class DoacaoEntradaService {
         // Garante que o tipo sanguíneo da doação é o mesmo do doador
         doacao.setTipoSanguineo(doador.getTipoSanguineo());
 
-        // 2. REGRA DO INTERVALO ENTRE DOAÇÕES
+        // Intervalo entre doações
         validarIntervaloDoacao(doador);
 
-        // Se passou em tudo, salva a doação
+        // Salva a doação
         DoacaoEntrada novaDoacao = doacaoDao.inserir(doacao);
 
-        // 3. ATUALIZA O DOADOR (Última doação = Hoje)
+        // Atualização da data de doação (Última doação = Hoje)
         doador.setDataUltimaDoacao(LocalDate.now());
         doadorDao.atualizar(doador);
 
@@ -68,7 +68,7 @@ public class DoacaoEntradaService {
         }
     }
 
-    // --- MÉTODOS PARA RELATÓRIOS ---
+    // Método para gerar relatórios
 
     public List<Object[]> gerarRankingDoadores() {
         return doacaoDao.buscarRankingDoadores();

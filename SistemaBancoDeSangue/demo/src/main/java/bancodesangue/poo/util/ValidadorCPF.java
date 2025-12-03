@@ -6,7 +6,7 @@ public class ValidadorCPF {
         if (cpf == null)
             return false;
 
-        cpf = cpf.replaceAll("\\D", ""); // remove tudo que não é número
+        cpf = cpf.replaceAll("\\D", "");
         if (cpf.length() != 11)
             return false;
 
