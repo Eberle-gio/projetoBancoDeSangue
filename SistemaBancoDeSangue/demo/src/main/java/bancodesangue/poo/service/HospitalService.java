@@ -1,34 +1,39 @@
 package bancodesangue.poo.service;
 
+import java.util.List;
+
 import bancodesangue.poo.dao.DaoHospital;
 import bancodesangue.poo.entity.Hospital;
-import bancodesangue.poo.util.ValidadorCNPJ;
 
 public class HospitalService {
 
-    private DaoHospital hospitalDao;
+    private DaoHospital dao;
 
-    public HospitalService(DaoHospital hospitalDao) {
-        this.hospitalDao = hospitalDao;
+    public HospitalService() {
+        this.dao = new DaoHospital();
     }
 
     public Hospital cadastrarHospital(Hospital hospital) {
-        verificarAtributos(hospital);
-        return hospitalDao.inserir(hospital);
+        hospital.validarCadastro();
+
+        Hospital existente = dao.buscarPorCnpj(hospital.getCnpj());
+        if (existente != null && (hospital.getId() == null || !existente.getId().equals(hospital.getId()))) {
+            throw new IllegalArgumentException("CNPJ já cadastrado no sistema.");
+        }
+
+        return dao.inserir(hospital);
     }
 
-    public void verificarAtributos(Hospital hospital) {
-        if (hospital.getNome() == null || hospital.getNome().isEmpty()) {
-            throw new IllegalArgumentException("Nome é obrigatório.");
-        }
+    public Hospital atualizarHospital(Hospital hospital) {
+        hospital.validarCadastro();
+        return dao.atualizar(hospital);
+    }
 
-        if (!ValidadorCNPJ.validarCnpj(hospital.getCnpj())) {
-            throw new IllegalArgumentException("CNPJ inválido.");
-        }
+    public List<Hospital> buscarTodos() {
+        return dao.buscarTodos();
+    }
 
-        Hospital existente = hospitalDao.buscarPorCnpj(hospital.getCnpj());
-        if (existente != null && (hospital.getId() == null || !existente.getId().equals(hospital.getId()))) {
-            throw new IllegalArgumentException("CNPJ já cadastrado.");
-        }
+    public Hospital buscarPorId(Long id) {
+        return dao.buscarPorId(id);
     }
 }

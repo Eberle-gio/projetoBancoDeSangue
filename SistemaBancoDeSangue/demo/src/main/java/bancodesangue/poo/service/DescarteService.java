@@ -7,25 +7,15 @@ import bancodesangue.poo.entity.Descarte;
 
 public class DescarteService {
 
-    private DaoDescarte descarteDao;
+    private DaoDescarte dao;
 
-    public DescarteService(DaoDescarte descarteDao) {
-        this.descarteDao = descarteDao;
+    public DescarteService() {
+        this.dao = new DaoDescarte();
     }
 
     public Descarte registrarDescarte(Descarte descarte) {
         descarte.setData(LocalDate.now());
-
-        if (descarte.getMotivoDescarte() == null || descarte.getMotivoDescarte().isEmpty()) {
-            throw new IllegalArgumentException("Motivo do descarte é obrigatório.");
-        }
-        if (descarte.getResponsavelDescarte() == null || descarte.getResponsavelDescarte().isEmpty()) {
-            throw new IllegalArgumentException("Responsável pelo descarte é obrigatório.");
-        }
-        if (descarte.getTipoSanguineo() == null) {
-            throw new IllegalArgumentException("Tipo sanguíneo é obrigatório.");
-        }
-
-        return descarteDao.inserir(descarte);
+        descarte.validarMovimentacao();
+        return dao.inserir(descarte);
     }
 }

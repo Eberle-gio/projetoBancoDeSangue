@@ -11,65 +11,45 @@ import bancodesangue.poo.enums.TipoSanguineo;
 
 public class DoacaoSaidaService {
 
-    private DaoDoacaoSaida saidaDao;
-    private DaoDoacaoEntrada entradaDao;
-    private DaoHospital hospitalDao;
+    private DaoDoacaoSaida daoSaida;
+    private DaoDoacaoEntrada daoEntrada;
+    private DaoHospital daoHospital;
 
-    // Injeção de Dependência
-    public DoacaoSaidaService(DaoDoacaoSaida saidaDao, DaoDoacaoEntrada entradaDao, DaoHospital hospitalDao) {
-        this.saidaDao = saidaDao;
-        this.entradaDao = entradaDao;
-        this.hospitalDao = hospitalDao;
+    public DoacaoSaidaService() {
+        this.daoSaida = new DaoDoacaoSaida();
+        this.daoEntrada = new DaoDoacaoEntrada();
+        this.daoHospital = new DaoHospital();
     }
 
     public DoacaoSaida registrarSaida(DoacaoSaida saida) {
-        // Data automática
         saida.setData(LocalDate.now());
 
-        // Validações básicas
-        if (saida.getQuantidadeBolsas() <= 0) {
-            throw new IllegalArgumentException("Quantidade deve ser maior que zero.");
-        }
         if (saida.getHospital() == null || saida.getHospital().getId() == null) {
-            throw new IllegalArgumentException("Hospital não informado.");
+            throw new IllegalArgumentException("ID do Hospital é obrigatório.");
         }
-        if (hospitalDao.buscarPorId(saida.getHospital().getId()) == null) {
+        if (daoHospital.buscarPorId(saida.getHospital().getId()) == null) {
             throw new IllegalArgumentException("Hospital não encontrado.");
         }
 
-        // 4. VERIFICAÇÃO DE ESTOQUE
-        validarEstoque(saida.getTipoSanguineo(), saida.getQuantidadeBolsas());
+        saida.validarMovimentacao();
 
-        return saidaDao.inserir(saida);
-    }
+        long saldo = consultarEstoqueAtual(saida.getTipoSanguineo());
+        saida.validarEstoque(saldo);
 
-    private void validarEstoque(TipoSanguineo tipo, int quantidadeSolicitada) {
-        // Busca quanto entrou e quanto saiu no banco
-        Long totalEntrada = entradaDao.somarEntradasPorTipo(tipo);
-        Long totalSaida = saidaDao.somarSaidasPorTipo(tipo);
-
-        long estoqueAtual = totalEntrada - totalSaida;
-
-        if (quantidadeSolicitada > estoqueAtual) {
-            throw new IllegalArgumentException("Estoque insuficiente para " + tipo +
-                    ". Disponível: " + estoqueAtual + ", Solicitado: " + quantidadeSolicitada);
-        }
-    }
-
-    // Métodos para a geração de relatórios
-
-    public List<DoacaoSaida> buscarPorData(boolean asc) {
-        return saidaDao.buscarSaidasPorData(asc);
-    }
-
-    public List<Object[]> gerarRankingHospitais() {
-        return saidaDao.buscarRankingHospitais();
+        return daoSaida.inserir(saida);
     }
 
     public long consultarEstoqueAtual(TipoSanguineo tipo) {
-        Long totalEntrada = entradaDao.somarEntradasPorTipo(tipo);
-        Long totalSaida = saidaDao.somarSaidasPorTipo(tipo);
+        Long entradas = daoEntrada.somarEntradasPorTipo(tipo);
+        Long saidas = daoSaida.somarSaidasPorTipo(tipo);
+        return entradas - saidas;
+    }
 
-        return totalEntrada - totalSaida;
+    public List<DoacaoSaida> buscarPorData(boolean ascendente) {
+        return daoSaida.buscarSaidasPorData(ascendente);
+    }
+
+    public List<Object[]> gerarRankingHospitais() {
+        return daoSaida.buscarRankingHospitais();
     }
 }

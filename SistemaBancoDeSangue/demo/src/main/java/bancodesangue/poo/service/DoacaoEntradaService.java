@@ -1,76 +1,50 @@
 package bancodesangue.poo.service;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import bancodesangue.poo.dao.DaoDoacaoEntrada;
 import bancodesangue.poo.dao.DaoDoador;
 import bancodesangue.poo.entity.DoacaoEntrada;
 import bancodesangue.poo.entity.Doador;
-import bancodesangue.poo.enums.Genero;
 
 public class DoacaoEntradaService {
 
-    private DaoDoacaoEntrada doacaoDao;
-    private DaoDoador doadorDao;
+    private DaoDoacaoEntrada daoEntrada;
+    private DaoDoador daoDoador;
 
-    // Injeção de Dependência
-    public DoacaoEntradaService(DaoDoacaoEntrada doacaoDao, DaoDoador doadorDao) {
-        this.doacaoDao = doacaoDao;
-        this.doadorDao = doadorDao;
+    public DoacaoEntradaService() {
+        this.daoEntrada = new DaoDoacaoEntrada();
+        this.daoDoador = new DaoDoador();
     }
 
-    public DoacaoEntrada registrarDoacao(DoacaoEntrada doacao) {
-        // 1. DATA AUTOMÁTICA
-        doacao.setData(LocalDate.now());
+    public DoacaoEntrada registrarDoacao(DoacaoEntrada entrada) {
+        entrada.setData(LocalDate.now());
 
-        // Valida se o doador foi informado
-        if (doacao.getDoador() == null || doacao.getDoador().getId() == null) {
-            throw new IllegalArgumentException("Doador é obrigatório.");
+        if (entrada.getDoador() == null || entrada.getDoador().getId() == null) {
+            throw new IllegalArgumentException("ID do Doador é obrigatório.");
         }
 
-        // Busca o doador atualizado do banco para garantir os dados
-        Doador doador = doadorDao.buscarPorId(doacao.getDoador().getId());
+        Doador doador = daoDoador.buscarPorId(entrada.getDoador().getId());
         if (doador == null) {
-            throw new IllegalArgumentException("Doador não encontrado no banco de dados.");
+            throw new IllegalArgumentException("Doador não encontrado.");
         }
 
-        // Garante que o tipo sanguíneo da doação é o mesmo do doador
-        doacao.setTipoSanguineo(doador.getTipoSanguineo());
+        entrada.setDoador(doador);
+        entrada.setTipoSanguineo(doador.getTipoSanguineo());
 
-        // Intervalo entre doações
-        validarIntervaloDoacao(doador);
+        entrada.validarMovimentacao();
+        doador.validarIntervaloDoacao(LocalDate.now());
 
-        // Salva a doação
-        DoacaoEntrada novaDoacao = doacaoDao.inserir(doacao);
+        DoacaoEntrada nova = daoEntrada.inserir(entrada);
 
-        // Atualização da data de doação (Última doação = Hoje)
         doador.setDataUltimaDoacao(LocalDate.now());
-        doadorDao.atualizar(doador);
+        daoDoador.atualizar(doador);
 
-        return novaDoacao;
+        return nova;
     }
-
-    private void validarIntervaloDoacao(Doador doador) {
-        LocalDate ultimaDoacao = doador.getDataUltimaDoacao();
-
-        if (ultimaDoacao != null) {
-            long diasPassados = ChronoUnit.DAYS.between(ultimaDoacao, LocalDate.now());
-
-            if (doador.getGenero() == Genero.MASCULINO && diasPassados < 60) {
-                throw new IllegalArgumentException(
-                        "Homens devem aguardar 60 dias. Faltam: " + (60 - diasPassados) + " dias.");
-            } else if (doador.getGenero() == Genero.FEMININO && diasPassados < 90) {
-                throw new IllegalArgumentException(
-                        "Mulheres devem aguardar 90 dias. Faltam: " + (90 - diasPassados) + " dias.");
-            }
-        }
-    }
-
-    // Método para gerar relatórios
 
     public List<Object[]> gerarRankingDoadores() {
-        return doacaoDao.buscarRankingDoadores();
+        return daoEntrada.buscarRankingDoadores();
     }
 }

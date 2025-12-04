@@ -2,14 +2,12 @@ package bancodesangue.poo.dao;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import bancodesangue.poo.entity.DoacaoSaida;
 import bancodesangue.poo.enums.TipoSanguineo;
 
 public class DaoDoacaoSaida extends AbstractDao<DoacaoSaida> {
 
-    public DaoDoacaoSaida(EntityManager em) {
+    public DaoDoacaoSaida() {
         super(DoacaoSaida.class);
     }
 

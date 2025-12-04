@@ -4,44 +4,41 @@ import java.util.List;
 
 import bancodesangue.poo.dao.DaoDoador;
 import bancodesangue.poo.entity.Doador;
-import bancodesangue.poo.util.ValidadorCPF;
 
 public class DoadorService {
 
-    private DaoDoador doadorDao;
+    private DaoDoador dao;
 
-    public DoadorService(DaoDoador doadorDao) {
-        this.doadorDao = doadorDao;
+    public DoadorService() {
+        this.dao = new DaoDoador();
     }
 
     public Doador cadastrarDoador(Doador doador) {
-        validarDoador(doador);
-        return doadorDao.inserir(doador);
+
+        doador.validarCadastro();
+
+        Doador existente = dao.buscarPorCpf(doador.getCpf());
+        if (existente != null && (doador.getId() == null || !existente.getId().equals(doador.getId()))) {
+            throw new IllegalArgumentException("CPF já cadastrado no sistema.");
+        }
+
+        return dao.inserir(doador);
     }
 
-    private void validarDoador(Doador doador) {
-        if (doador.getIdade() < 16 || doador.getIdade() > 69)
-            throw new IllegalArgumentException("Idade inválida (16 a 69 anos).");
-
-        if (doador.getPeso() < 50)
-            throw new IllegalArgumentException("Peso mínimo é 50kg.");
-
-        if (!ValidadorCPF.validar(doador.getCpf())) {
-            throw new IllegalArgumentException("CPF inválido.");
-        }
-
-        // Validação de duplicidade
-        Doador existente = doadorDao.buscarPorCpf(doador.getCpf());
-        if (existente != null && (doador.getId() == null || !existente.getId().equals(doador.getId()))) {
-            throw new IllegalArgumentException("CPF já cadastrado.");
-        }
+    public Doador atualizarDoador(Doador doador) {
+        doador.validarCadastro();
+        return dao.atualizar(doador);
     }
 
     public List<Doador> buscarTodos() {
-        return doadorDao.buscarTodos();
+        return dao.buscarTodos();
+    }
+
+    public Doador buscarPorId(Long id) {
+        return dao.buscarPorId(id);
     }
 
     public Doador buscarPorNome(String nome) {
-        return doadorDao.buscarPorNome(nome);
+        return dao.buscarPorNome(nome);
     }
 }

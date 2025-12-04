@@ -9,15 +9,15 @@ public class MovimentacaoService {
 
     private DaoMovimentacao dao;
 
-    public MovimentacaoService(DaoMovimentacao dao) {
-        this.dao = dao;
+    public MovimentacaoService() {
+        this.dao = new DaoMovimentacao();
     }
 
     public List<Movimentacao> buscarHistoricoCompleto() {
         return dao.buscarTodos();
     }
 
-    public List<Movimentacao> buscarPorData(boolean asc) {
-        return dao.buscarTodosOrdenadoPorData(asc);
+    public List<Movimentacao> buscarPorData(boolean ascendente) {
+        return dao.buscarTodosOrdenadoPorData(ascendente);
     }
 }
