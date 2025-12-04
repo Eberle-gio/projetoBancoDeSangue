@@ -2,45 +2,28 @@ package bancodesangue.poo.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
+
+import bancodesangue.poo.util.ValidadorCNPJ;
 
 @Entity
 @Table(name = "hospital")
-public class Hospital {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(length = 100, nullable = false, name = "nome")
-    private String nome;
+public class Hospital extends EntidadeBase {
 
     @Column(length = 200, nullable = false, name = "endereco")
     private String endereco;
 
-    @Column(length = 15, nullable = false, name = "telefone")
-    private String telefone;
-
     @Column(nullable = false, unique = true, name = "cnpj")
     private Long cnpj;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
+    @Override
+    public void validarCadastro() {
+        if (this.getNome() == null || this.getNome().isEmpty())
+            throw new IllegalArgumentException("Nome obrigatório.");
+        if (this.getEndereco() == null || this.getEndereco().isEmpty())
+            throw new IllegalArgumentException("Endereço obrigatório.");
+        if (!ValidadorCNPJ.validarCnpj(this.getCnpj()))
+            throw new IllegalArgumentException("CNPJ inválido.");
     }
 
     public String getEndereco() {
@@ -49,14 +32,6 @@ public class Hospital {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
     }
 
     public Long getCnpj() {

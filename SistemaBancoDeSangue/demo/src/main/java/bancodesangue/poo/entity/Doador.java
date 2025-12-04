@@ -1,28 +1,21 @@
 package bancodesangue.poo.entity;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 import bancodesangue.poo.enums.Genero;
 import bancodesangue.poo.enums.TipoSanguineo;
+import bancodesangue.poo.util.ValidadorCPF;
 
 @Entity
 @Table(name = "doador")
-public class Doador {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(length = 100, nullable = false, name = "nome")
-    private String nome;
+public class Doador extends EntidadeBase {
 
     @Column(length = 14, nullable = false, unique = true, name = "cpf")
     private String cpf;
@@ -38,29 +31,34 @@ public class Doador {
     @Enumerated(EnumType.STRING)
     private TipoSanguineo tipoSanguineo;
 
-    @Column(length = 15, nullable = false, unique = false, name = "telefone")
-    private String telefone;
-
     @Column(nullable = false, unique = false, name = "peso")
     private Double peso;
 
     @Column(nullable = true, unique = false, name = "dataUltimaDoacao")
     private LocalDate dataUltimaDoacao;
 
-    public Long getId() {
-        return id;
+    @Override
+    public void validarCadastro() {
+        if (this.getNome() == null || this.getNome().isEmpty())
+            throw new IllegalArgumentException("Nome obrigatório.");
+        if (this.idade < 16 || this.idade > 69)
+            throw new IllegalArgumentException("Idade inválida (16-69 anos).");
+        if (this.peso < 50)
+            throw new IllegalArgumentException("Peso mínimo 50kg.");
+        if (!ValidadorCPF.validar(this.cpf))
+            throw new IllegalArgumentException("CPF inválido.");
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
+    // Regra de Negócio na Entidade: Doador sabe se pode doar hoje
+    public void validarIntervaloDoacao(LocalDate dataAtual) {
+        if (this.dataUltimaDoacao != null) {
+            long dias = ChronoUnit.DAYS.between(this.dataUltimaDoacao, dataAtual);
+            if (this.genero == Genero.MASCULINO && dias < 60) {
+                throw new IllegalArgumentException("Homens devem aguardar 60 dias.");
+            } else if (this.genero == Genero.FEMININO && dias < 90) {
+                throw new IllegalArgumentException("Mulheres devem aguardar 90 dias.");
+            }
+        }
     }
 
     public String getCpf() {
@@ -93,14 +91,6 @@ public class Doador {
 
     public void setTipoSanguineo(TipoSanguineo tipoSanguineo) {
         this.tipoSanguineo = tipoSanguineo;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
     }
 
     public Double getPeso() {
