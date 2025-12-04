@@ -49,7 +49,6 @@ public class Doador extends EntidadeBase {
             throw new IllegalArgumentException("CPF inválido.");
     }
 
-    // Regra de Negócio na Entidade: Doador sabe se pode doar hoje
     public void validarIntervaloDoacao(LocalDate dataAtual) {
         if (this.dataUltimaDoacao != null) {
             long dias = ChronoUnit.DAYS.between(this.dataUltimaDoacao, dataAtual);

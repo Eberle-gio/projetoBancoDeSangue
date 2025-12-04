@@ -2,15 +2,13 @@ package bancodesangue.poo.dao;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import bancodesangue.poo.entity.DoacaoEntrada;
 import bancodesangue.poo.enums.TipoSanguineo;
 
 public class DaoDoacaoEntrada extends AbstractDao<DoacaoEntrada> {
 
-    public DaoDoacaoEntrada(EntityManager em) {
-        super(em, DoacaoEntrada.class);
+    public DaoDoacaoEntrada() {
+        super(DoacaoEntrada.class);
     }
 
     public Long somarEntradasPorTipo(TipoSanguineo tipo) {

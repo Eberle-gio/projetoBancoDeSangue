@@ -3,19 +3,22 @@ package bancodesangue.poo.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+// Importante: Importar o JPAUtil que criamos
+import bancodesangue.poo.util.JPAUtil;
 
 public abstract class AbstractDao<T> implements DaoGenerico<T> {
-
-    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistenciaPU");
 
     protected EntityManager em;
     private Class<T> entityClass;
 
-    public AbstractDao(EntityManager em, Class<T> entityClass) {
-        this.em = em;
+    // CONSTRUTOR MUDOU:
+    // Não recebe mais o EntityManager. Ele cria o seu próprio.
+    public AbstractDao(Class<T> entityClass) {
         this.entityClass = entityClass;
+        // Pega uma conexão nova da fábrica
+        this.em = JPAUtil.getEntityManager();
     }
 
     @Override
@@ -26,6 +29,7 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             em.getTransaction().commit();
             return entidade;
         } catch (Exception e) {
+            // Rollback seguro
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -59,7 +63,8 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw e;
+            // Aqui é melhor lançar RuntimeException para não obrigar quem chama a tratar
+            throw new RuntimeException("Erro ao excluir registro: " + e.getMessage(), e);
         }
         return entidade;
     }
@@ -71,15 +76,27 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
 
     @Override
     public T buscarPorNome(String nome) {
-        List<T> resultados = em.createQuery("from " + entityClass.getSimpleName() + " where nome = :nome", entityClass)
-                .setParameter("nome", nome)
-                .getResultList();
-        return resultados.isEmpty() ? null : resultados.get(0);
+        try {
+            // Melhor usar TypedQuery para evitar warnings e erros
+            String jpql = "FROM " + entityClass.getSimpleName() + " WHERE nome = :nome";
+            TypedQuery<T> query = em.createQuery(jpql, entityClass);
+            query.setParameter("nome", nome);
+            return query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
     public List<T> buscarTodos() {
-        return em.createQuery("from " + entityClass.getSimpleName(), entityClass)
+        return em.createQuery("FROM " + entityClass.getSimpleName(), entityClass)
                 .getResultList();
+    }
+
+    // Método útil para fechar a conexão quando o DAO não for mais usado
+    public void fechar() {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
     }
 }

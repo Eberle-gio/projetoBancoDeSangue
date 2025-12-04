@@ -1,6 +1,5 @@
 package bancodesangue.poo.dao;
 
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
@@ -8,8 +7,8 @@ import bancodesangue.poo.entity.Hospital;
 
 public class DaoHospital extends AbstractDao<Hospital> {
 
-    public DaoHospital(EntityManager em) {
-        super(em, Hospital.class);
+    public DaoHospital() {
+        super(Hospital.class);
     }
 
     public Hospital buscarPorCnpj(Long cnpj) {

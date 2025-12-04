@@ -10,7 +10,7 @@ import bancodesangue.poo.enums.TipoSanguineo;
 public class DaoDoacaoSaida extends AbstractDao<DoacaoSaida> {
 
     public DaoDoacaoSaida(EntityManager em) {
-        super(em, DoacaoSaida.class);
+        super(DoacaoSaida.class);
     }
 
     public Long somarSaidasPorTipo(TipoSanguineo tipo) {

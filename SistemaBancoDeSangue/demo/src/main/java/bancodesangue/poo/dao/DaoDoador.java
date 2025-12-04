@@ -1,6 +1,5 @@
 package bancodesangue.poo.dao;
 
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
@@ -8,8 +7,8 @@ import bancodesangue.poo.entity.Doador;
 
 public class DaoDoador extends AbstractDao<Doador> {
 
-    public DaoDoador(EntityManager em) {
-        super(em, Doador.class);
+    public DaoDoador() {
+        super(Doador.class);
     }
 
     public Doador buscarPorCpf(String cpf) {
