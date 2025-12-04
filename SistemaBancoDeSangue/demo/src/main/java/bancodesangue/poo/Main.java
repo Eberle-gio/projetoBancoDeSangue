@@ -13,7 +13,7 @@ import bancodesangue.poo.dao.DaoDoacaoSaida;
 import bancodesangue.poo.dao.DaoDoador;
 import bancodesangue.poo.dao.DaoHospital;
 import bancodesangue.poo.dao.DaoMovimentacao;
-import bancodesangue.poo.entity.DoacaoDescarte;
+import bancodesangue.poo.entity.Descarte;
 import bancodesangue.poo.entity.DoacaoEntrada;
 import bancodesangue.poo.entity.DoacaoSaida;
 import bancodesangue.poo.entity.Doador;
@@ -273,7 +273,7 @@ public class Main {
 
     private static void registrarDescarte() {
         System.out.println("\n>>> REGISTRAR DESCARTE DE BOLSA <<<");
-        DoacaoDescarte descarte = new DoacaoDescarte();
+        Descarte descarte = new Descarte();
 
         System.out.println("Qual o tipo sanguíneo da bolsa descartada?");
         descarte.setTipoSanguineo(lerTipoSanguineo());
@@ -399,9 +399,9 @@ public class Main {
                 tipo = "[SAÍDA]  ";
                 detalhe = "Hospital: " + ((DoacaoSaida) m).getHospital().getNome() +
                         " (Qtd: " + ((DoacaoSaida) m).getQuantidadeBolsas() + ")";
-            } else if (m instanceof DoacaoDescarte) {
+            } else if (m instanceof Descarte) {
                 tipo = "[DESCARTE]";
-                detalhe = "Motivo: " + ((DoacaoDescarte) m).getMotivoDescarte();
+                detalhe = "Motivo: " + ((Descarte) m).getMotivoDescarte();
             }
 
             System.out.println(

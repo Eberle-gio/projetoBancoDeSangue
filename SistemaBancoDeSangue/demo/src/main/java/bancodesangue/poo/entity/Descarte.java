@@ -8,13 +8,26 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "doacao_descarte")
 @PrimaryKeyJoinColumn(name = "id")
-public class DoacaoDescarte extends Movimentacao {
+public class Descarte extends Movimentacao {
 
     @Column(nullable = false)
     private String motivoDescarte;
 
     @Column(nullable = false)
     private String responsavelDescarte;
+
+    @Override
+    public void validarMovimentacao() {
+        if (this.getTipoSanguineo() == null) {
+            throw new IllegalArgumentException("Tipo Sanguíneo é obrigatório para o descarte.");
+        }
+        if (this.motivoDescarte == null || this.motivoDescarte.trim().isEmpty()) {
+            throw new IllegalArgumentException("Motivo do descarte é obrigatório.");
+        }
+        if (this.responsavelDescarte == null || this.responsavelDescarte.trim().isEmpty()) {
+            throw new IllegalArgumentException("Responsável pelo descarte é obrigatório.");
+        }
+    }
 
     public String getMotivoDescarte() {
         return motivoDescarte;

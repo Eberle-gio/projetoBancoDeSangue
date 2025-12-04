@@ -31,6 +31,8 @@ public abstract class Movimentacao {
     @Column(nullable = false)
     private LocalDate data;
 
+    public abstract void validarMovimentacao();
+
     public Long getId() {
         return id;
     }

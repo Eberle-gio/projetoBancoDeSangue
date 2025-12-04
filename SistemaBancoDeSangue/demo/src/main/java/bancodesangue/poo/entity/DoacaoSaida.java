@@ -19,6 +19,20 @@ public class DoacaoSaida extends Movimentacao {
     @Column(nullable = false, name = "quantidade_bolsas")
     private int quantidadeBolsas;
 
+    @Override
+    public void validarMovimentacao() {
+        if (this.hospital == null)
+            throw new IllegalArgumentException("Hospital obrigatório.");
+        if (this.quantidadeBolsas <= 0)
+            throw new IllegalArgumentException("Quantidade deve ser positiva.");
+    }
+
+    public void validarEstoque(long saldoDisponivel) {
+        if (this.quantidadeBolsas > saldoDisponivel) {
+            throw new IllegalArgumentException("Estoque insuficiente. Disponível: " + saldoDisponivel);
+        }
+    }
+
     public Hospital getHospital() {
         return hospital;
     }

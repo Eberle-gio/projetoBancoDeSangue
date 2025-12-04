@@ -19,6 +19,14 @@ public class DoacaoEntrada extends Movimentacao {
     @Column(nullable = false)
     private int quantidade = 1;
 
+    @Override
+    public void validarMovimentacao() {
+        if (this.doador == null)
+            throw new IllegalArgumentException("Doador obrigatório.");
+        if (this.getData() == null)
+            throw new IllegalArgumentException("Data obrigatória.");
+    }
+
     public Doador getDoador() {
         return doador;
     }

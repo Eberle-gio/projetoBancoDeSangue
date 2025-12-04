@@ -3,7 +3,7 @@ package bancodesangue.poo.service;
 import java.time.LocalDate;
 
 import bancodesangue.poo.dao.DaoDescarte;
-import bancodesangue.poo.entity.DoacaoDescarte;
+import bancodesangue.poo.entity.Descarte;
 
 public class DescarteService {
 
@@ -13,7 +13,7 @@ public class DescarteService {
         this.descarteDao = descarteDao;
     }
 
-    public DoacaoDescarte registrarDescarte(DoacaoDescarte descarte) {
+    public Descarte registrarDescarte(Descarte descarte) {
         descarte.setData(LocalDate.now());
 
         if (descarte.getMotivoDescarte() == null || descarte.getMotivoDescarte().isEmpty()) {
