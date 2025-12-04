@@ -1,6 +1,8 @@
 package bancodesangue.poo;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import bancodesangue.poo.entity.Descarte;
 import bancodesangue.poo.entity.DoacaoEntrada;
@@ -65,6 +67,8 @@ public class Main {
             }
 
         } catch (Exception e) {
+            if (view != null)
+                view.mostrarMensagem("ERRO CRÍTICO: " + e.getMessage());
             e.printStackTrace();
         } finally {
             if (view != null)
@@ -165,7 +169,7 @@ public class Main {
     }
 
     private static void cadastrarDoador() {
-        view.mostrarMensagem(">>> NOVO CADASTRO DE DOADOR <<<");
+        view.mostrarMensagem(">>> CADASTRO DE DOADOR <<<");
         Doador d = new Doador();
 
         d.setNome(view.lerString("Nome Completo:"));
@@ -176,18 +180,18 @@ public class Main {
         d.setGenero(view.lerGenero());
         d.setTipoSanguineo(view.lerTipoSanguineo());
 
-        Doador salvo = doadorService.cadastrarDoador(d);
-        view.mostrarMensagem("SUCESSO! Doador cadastrado com ID: " + salvo.getId());
+        doadorService.cadastrarDoador(d);
+        view.mostrarMensagem("SUCESSO! Doador cadastrado com ID: " + d.getId());
     }
 
     private static void registrarEntrada() {
-        view.mostrarMensagem(">>> REGISTRAR DOAÇÃO (ENTRADA) <<<");
+        view.mostrarMensagem(">>> REGISTRO DOAÇÃO <<<");
         String nomeDoador = view.lerString("Digite o Nome do Doador:");
 
         Doador d = doadorService.buscarPorNome(nomeDoador);
 
         if (d == null) {
-            view.mostrarMensagem("AVISO: Doador não encontrado com este nome.");
+            view.mostrarMensagem("AVISO: Doador não encontrado com este Nome.");
             return;
         }
         view.mostrarMensagem("Doador Identificado: " + d.getNome() + " [" + d.getTipoSanguineo() + "]");
@@ -200,7 +204,7 @@ public class Main {
     }
 
     private static void registrarDescarte() {
-        view.mostrarMensagem(">>> REGISTRAR DESCARTE DE BOLSA <<<");
+        view.mostrarMensagem(">>> REGISTRO DE DESCARTE DE BOLSA <<<");
         Descarte des = new Descarte();
 
         System.out.println("Qual o tipo sanguíneo da bolsa descartada?");
@@ -214,16 +218,13 @@ public class Main {
     }
 
     private static void visualizarEstoque() {
-        view.mostrarMensagem("--- ESTOQUE ATUAL ---");
-        System.out.printf("%-10s | %s%n", "TIPO", "QUANTIDADE");
-        System.out.println("---------------------");
+        Map<TipoSanguineo, Long> mapaEstoque = new LinkedHashMap<>();
 
         for (TipoSanguineo tipo : TipoSanguineo.values()) {
             long qtd = saidaService.consultarEstoqueAtual(tipo);
-            System.out.printf("%-10s | %d bolsas%n", tipo, qtd);
+            mapaEstoque.put(tipo, qtd);
         }
-        System.out.println("---------------------");
-        System.out.println();
+        view.exibirGraficoEstoque(mapaEstoque);
     }
 
     private static void listarTodosDoadores() {
@@ -244,7 +245,7 @@ public class Main {
     }
 
     private static void cadastrarHospital() {
-        view.mostrarMensagem(">>> NOVO CADASTRO DE HOSPITAL <<<");
+        view.mostrarMensagem(">>> CADASTRO DE HOSPITAL <<<");
         Hospital h = new Hospital();
 
         h.setNome(view.lerString("Nome do Hospital:"));
@@ -311,14 +312,13 @@ public class Main {
         view.mostrarMensagem("--- " + titulo + " ---");
 
         if (ranking.isEmpty()) {
-            System.out.println("Sem dados para o ranking.");
+            System.out.println("Sem dados para exibir.");
             return;
         }
 
         for (Object[] row : ranking) {
             EntidadeBase ent = (EntidadeBase) row[0];
             Long qtd = (Long) row[1];
-
             System.out.println(ent.getNome() + " - Total: " + qtd);
         }
         System.out.println();
