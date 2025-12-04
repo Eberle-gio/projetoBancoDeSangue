@@ -36,4 +36,8 @@ public class HospitalService {
     public Hospital buscarPorId(Long id) {
         return dao.buscarPorId(id);
     }
+
+    public Hospital buscarPorNome(String nome) {
+        return dao.buscarPorNome(nome);
+    }
 }
