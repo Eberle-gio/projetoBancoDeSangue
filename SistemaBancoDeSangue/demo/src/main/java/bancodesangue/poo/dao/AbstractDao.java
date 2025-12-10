@@ -13,11 +13,8 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
     protected EntityManager em;
     private Class<T> entityClass;
 
-    // CONSTRUTOR MUDOU:
-    // Não recebe mais o EntityManager. Ele cria o seu próprio.
     public AbstractDao(Class<T> entityClass) {
         this.entityClass = entityClass;
-        // Pega uma conexão nova da fábrica
         this.em = JPAUtil.getEntityManager();
     }
 
@@ -29,7 +26,6 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             em.getTransaction().commit();
             return entidade;
         } catch (Exception e) {
-            // Rollback seguro
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -63,7 +59,6 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            // Aqui é melhor lançar RuntimeException para não obrigar quem chama a tratar
             throw new RuntimeException("Erro ao excluir registro: " + e.getMessage(), e);
         }
         return entidade;
@@ -77,7 +72,6 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
     @Override
     public T buscarPorNome(String nome) {
         try {
-            // Melhor usar TypedQuery para evitar warnings e erros
             String jpql = "FROM " + entityClass.getSimpleName() + " WHERE nome = :nome";
             TypedQuery<T> query = em.createQuery(jpql, entityClass);
             query.setParameter("nome", nome);
@@ -93,7 +87,6 @@ public abstract class AbstractDao<T> implements DaoGenerico<T> {
                 .getResultList();
     }
 
-    // Método útil para fechar a conexão quando o DAO não for mais usado
     public void fechar() {
         if (em != null && em.isOpen()) {
             em.close();
